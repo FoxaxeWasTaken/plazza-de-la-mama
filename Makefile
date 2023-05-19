@@ -14,7 +14,7 @@ MAIN		=	src/Main.cpp
 
 SRC			=	src/Messages.cpp	\
 				src/Pizzas.cpp	\
-				src/Storage.cpp
+				src/Storage.cpp	\
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
@@ -22,9 +22,7 @@ TESTS_SRC	=
 
 TESTS_OBJ	=	$(TESTS_SRC:%.cpp=%.o)
 
-CPPFLAGS	=	-Wall -Wextra -Wshadow -Wpedantic -I./includes
-CPPFLAGS	+=	-lsfml-graphics -lsfml-window -lsfml-system
-CPPFLAGS	+=	-lncurses
+CPPFLAGS	=	-Wall -Wextra -Wshadow -Wpedantic -I./includes -std=c++17 -pthread
 
 TESTS_FLAGS	=	-lcriterion
 COVERAGE	=	--coverage -fprofile-arcs -ftest-coverage
