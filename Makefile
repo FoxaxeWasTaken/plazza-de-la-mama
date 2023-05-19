@@ -12,9 +12,13 @@ NAME		=	plazza
 
 MAIN		=	src/Main.cpp
 
-SRC			=	src/Messages.cpp	\
-				src/Pizzas.cpp	\
-				src/Storage.cpp	\
+SRC			=	src/Messages.cpp			\
+				src/Pizzas.cpp				\
+				src/Storage.cpp				\
+				src/Thread.cpp				\
+				src/ConditionalVariable.cpp	\
+				src/Mutex.cpp				\
+				src/Fork.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
