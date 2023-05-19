@@ -5,12 +5,6 @@
 ** Main
 */
 
-#include "IMessage.hpp"
-#include "Pizzas.hpp"
-#include "Messages.hpp"
-
-#include <iostream>
-
 int main(int ac, char **av)
 {
     (void)ac;
