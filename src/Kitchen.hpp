@@ -18,7 +18,7 @@
 namespace Plazza {
     class Kitchen {
         public:
-            Kitchen(std::size_t nbCooks, std::size_t timeRestock, std::size_t timeMultiplier);
+            Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier);
             ~Kitchen();
 
             void run();
@@ -30,5 +30,6 @@ namespace Plazza {
             SafeQueue<std::unique_ptr<IPizza>> _cooked;
             std::vector<Cook> _cooks;
             std::size_t _timeRestock;
+            std::atomic<bool> _isClosing;
     };
 }

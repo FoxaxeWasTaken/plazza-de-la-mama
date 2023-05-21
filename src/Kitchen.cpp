@@ -7,11 +7,11 @@
 
 #include "Kitchen.hpp"
 
-Plazza::Kitchen::Kitchen(std::size_t nbCooks, std::size_t timeRestock, std::size_t timeMultiplier)
-    : _clock(), _storage(), _toCook(), _cooked(), _cooks(), _timeRestock(timeRestock)
+Plazza::Kitchen::Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier)
+    : _clock(), _storage(), _toCook(), _cooked(), _cooks(), _timeRestock(timeRestock), _isClosing(false)
 {
     for (std::size_t i = 0; i < nbCooks; i++)
-        _cooks.push_back(Cook(_storage, timeMultiplier, _toCook, _cooked));
+        _cooks.emplace_back(_storage, timeMultiplier, _toCook, _cooked, _isClosing);
     run();
 }
 
@@ -21,25 +21,26 @@ Plazza::Kitchen::~Kitchen()
 
 void Plazza::Kitchen::run()
 {
-    std::size_t refillTime = 0;
-    std::size_t closeTime = 0;
-    std::size_t newTime = 0;
+    double refillTime = 0;
+    double closeTime = 0;
+    double newTime;
 
     while (true) {
         newTime = _clock.getElapsedTime();
         _clock.restart();
-        refillTime += newTime;
+        refillTime += newTime * 1000;
         closeTime += newTime;
         for (auto &cook : _cooks) {
             cook.getTime().fetch_add(newTime);
         }
-        if (refillTime >= _timeRestock) {
+        if (refillTime >= static_cast<double>(_timeRestock)) {
             _storage.refill();
-            refillTime -= _timeRestock;
+            refillTime -= static_cast<double>(_timeRestock);
         }
         if (_toCook.size() > 0 || getCookOccupancy() > 0) {
             closeTime = 0;
         } else if (closeTime >= 5) {
+            _isClosing.store(true);
             break;
         }
     }

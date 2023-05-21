@@ -27,7 +27,8 @@ namespace Plazza {
                 };
                 auto* func = new decltype(callable)(std::move(callable));
                 pthread_create(&_thread, nullptr, threadFunc, func);
-            }   
+            }
+            Thread(Thread&& other);
             ~Thread();
             void join();
             void detach();
@@ -37,6 +38,5 @@ namespace Plazza {
 
         private:
             pthread_t _thread;
-            std::function<void(void)> _func;
     };
 }

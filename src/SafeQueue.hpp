@@ -18,20 +18,18 @@ namespace Plazza {
     template<typename T>
     class SafeQueue {
         public:
-            SafeQueue() : _queue(), _mutex(), _condVar() {}
+            SafeQueue() : _queue(), _mutex() {}
             ~SafeQueue() = default;
 
             void push(T &element)
             {
                 ScopedLock lock(_mutex);
                 _queue.push(std::move(element));
-                _condVar.signal();
             }
 
             T pop()
             {
                 ScopedLock lock(_mutex);
-                _condVar.wait();
                 T element = std::move(_queue.front());
                 _queue.pop();
                 return element;
@@ -52,6 +50,5 @@ namespace Plazza {
         private:
             std::queue<T> _queue;
             Mutex _mutex;
-            ConditionalVariable _condVar;
     };
 }

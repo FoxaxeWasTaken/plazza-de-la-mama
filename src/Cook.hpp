@@ -16,21 +16,22 @@
 namespace Plazza {
     class Cook {
         public:
-            Cook(Storage &storage, std::size_t timeMultiplier, SafeQueue<std::unique_ptr<IPizza>> &toCook, SafeQueue<std::unique_ptr<IPizza>> &cooked);
+            Cook(Storage &storage, double timeMultiplier, SafeQueue<std::unique_ptr<IPizza>> &toCook, SafeQueue<std::unique_ptr<IPizza>> &cooked, std::atomic<bool> &isClosing);
+            Cook(Cook &&other);
             ~Cook();
 
             void run();
             bool isCooking() const;
             std::atomic<std::size_t> &getTime();
         private:
-            bool _isCooking;
+            std::atomic<bool> _isCooking;
             Storage &_storage;
             std::unique_ptr<IPizza> _pizza;
-            Thread _thread;
-            std::size_t _timeMultiplier;
+            double _timeMultiplier;
             SafeQueue<std::unique_ptr<IPizza>> &_toCook;
             SafeQueue<std::unique_ptr<IPizza>> &_cooked;
-            bool _isClosing;
+            std::atomic<bool> &_isClosing;
             std::atomic<std::size_t> _time;
+            Thread _thread;
     };
 }
