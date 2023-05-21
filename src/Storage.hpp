@@ -9,13 +9,14 @@
 
 #include <array>
 #include <vector>
+#include <atomic>
 
 #include "Ingredients.hpp"
 
 namespace Plazza {
     class Storage {
         public:
-            Storage();
+            Storage(std::size_t maxIngredients = 5);
             ~Storage() = default;
 
             void addIngredient(Ingredients ingredient);
@@ -24,8 +25,9 @@ namespace Plazza {
             void setIngredient(Ingredients ingredient, int quantity);
             bool hasIngredients(std::vector<Ingredients> ingredients) const;
             void takeIngredients(std::vector<Ingredients> ingredients);
-            void refill();
+            void refill(std::size_t nbIngredients = 1);
         private:
-            std::array<std::size_t, 9> _ingredients;
+            std::array<std::atomic<std::size_t>, 9> _ingredients;
+            std::size_t _maxIngredients;
     };
 }

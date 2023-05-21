@@ -7,35 +7,36 @@
 
 #include "Storage.hpp"
 
-Plazza::Storage::Storage()
+Plazza::Storage::Storage(std::size_t maxIngredients)
+    : _ingredients(), _maxIngredients(maxIngredients)
 {
-    _ingredients.fill(5);
+    refill(maxIngredients);
 }
 
 void Plazza::Storage::addIngredient(Ingredients ingredient)
 {
-    _ingredients[ingredient] += 1;
+    _ingredients[ingredient].fetch_add(1);
 }
 
 void Plazza::Storage::removeIngredient(Ingredients ingredient)
 {
-    _ingredients[ingredient] -= 1;
+    _ingredients[ingredient].fetch_sub(1);
 }
 
 int Plazza::Storage::getIngredient(Ingredients ingredient) const
 {
-    return _ingredients[ingredient];
+    return _ingredients[ingredient].load();
 }
 
 void Plazza::Storage::setIngredient(Ingredients ingredient, int quantity)
 {
-    _ingredients[ingredient] = quantity;
+    _ingredients[ingredient].store(quantity);
 }
 
 bool Plazza::Storage::hasIngredients(std::vector<Ingredients> ingredients) const
 {
     for (auto ingredient : ingredients) {
-        if (_ingredients[ingredient] == 0)
+        if (_ingredients[ingredient].load() == 0)
             return false;
     }
     return true;
@@ -44,14 +45,14 @@ bool Plazza::Storage::hasIngredients(std::vector<Ingredients> ingredients) const
 void Plazza::Storage::takeIngredients(std::vector<Ingredients> ingredients)
 {
     for (auto ingredient : ingredients) {
-        _ingredients[ingredient] -= 1;
+        _ingredients[ingredient].fetch_sub(1);
     }
 }
 
-void Plazza::Storage::refill()
+void Plazza::Storage::refill(std::size_t nbIngredients)
 {
     for (auto &ingredient : _ingredients) {
-        if (ingredient < 5)
-            ingredient += 1;
+        if (ingredient.load() < _maxIngredients)
+            ingredient.fetch_add(nbIngredients);
     }
 }
