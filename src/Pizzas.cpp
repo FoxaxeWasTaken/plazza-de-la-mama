@@ -33,12 +33,18 @@ void Plazza::APizza::setSize(Plazza::PizzaSize size)
     _size = size;
 }
 
+std::size_t Plazza::APizza::getCookingTime() const
+{
+    return _cookingTime;
+}
+
 Plazza::PizzaMargarita::PizzaMargarita(Plazza::PizzaSize size)
     : APizza(Plazza::Margarita, size)
 {
     _ingredients.push_back(Plazza::Doe);
     _ingredients.push_back(Plazza::Tomato);
     _ingredients.push_back(Plazza::Gruyere);
+    _cookingTime = cookingTime.at(_type);
 }
 
 std::vector<Plazza::Ingredients> Plazza::PizzaMargarita::getIngredients() const
@@ -54,6 +60,7 @@ Plazza::PizzaRegina::PizzaRegina(Plazza::PizzaSize size)
     _ingredients.push_back(Plazza::Gruyere);
     _ingredients.push_back(Plazza::Ham);
     _ingredients.push_back(Plazza::Mushrooms);
+    _cookingTime = cookingTime.at(_type);
 }
 
 std::vector<Plazza::Ingredients> Plazza::PizzaRegina::getIngredients() const
@@ -68,6 +75,7 @@ Plazza::PizzaAmericana::PizzaAmericana(Plazza::PizzaSize size)
     _ingredients.push_back(Plazza::Tomato);
     _ingredients.push_back(Plazza::Gruyere);
     _ingredients.push_back(Plazza::Steak);
+    _cookingTime = cookingTime.at(_type);
 }
 
 std::vector<Plazza::Ingredients> Plazza::PizzaAmericana::getIngredients() const
@@ -83,6 +91,7 @@ Plazza::PizzaFantasia::PizzaFantasia(Plazza::PizzaSize size)
     _ingredients.push_back(Plazza::Eggplant);
     _ingredients.push_back(Plazza::GoatCheese);
     _ingredients.push_back(Plazza::ChiefLove);
+    _cookingTime = cookingTime.at(_type);
 }
 
 std::vector<Plazza::Ingredients> Plazza::PizzaFantasia::getIngredients() const

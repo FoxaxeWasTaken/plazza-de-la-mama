@@ -9,15 +9,24 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Ingredients.hpp"
 
 namespace Plazza {
+
     enum PizzaType {
         Regina = 1,
         Margarita = 2,
         Americana = 4,
         Fantasia = 8
+    };
+
+    const std::map<Plazza::PizzaType, std::size_t> cookingTime = {
+        {Plazza::Regina, 2},
+        {Plazza::Margarita, 1},
+        {Plazza::Americana, 2},
+        {Plazza::Fantasia, 4}
     };
 
     enum PizzaSize {
@@ -33,6 +42,7 @@ namespace Plazza {
             virtual std::vector<Ingredients> getIngredients() const = 0;
             virtual PizzaType getType() const = 0;
             virtual PizzaSize getSize() const = 0;
+            virtual std::size_t getCookingTime() const = 0;
 
             virtual ~IPizza() = default;
     };
@@ -47,9 +57,11 @@ namespace Plazza {
             void setType(PizzaType type);
             PizzaSize getSize() const;
             void setSize(PizzaSize size);
+            std::size_t getCookingTime() const;
         protected:
             PizzaType _type;
             PizzaSize _size;
+            std::size_t _cookingTime;
     };
 
     class PizzaMargarita : public APizza {
