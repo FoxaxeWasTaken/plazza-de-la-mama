@@ -9,16 +9,11 @@
 
 Plazza::Fork::Fork()
 {
-    _pid = 0;
+    _pid = ::fork();
 }
 
 Plazza::Fork::~Fork()
 {
-}
-
-void Plazza::Fork::fork()
-{
-    _pid = ::fork();
 }
 
 void Plazza::Fork::wait()
@@ -41,4 +36,9 @@ bool Plazza::Fork::isParent() const
 pid_t Plazza::Fork::getPid() const
 {
     return _pid;
+}
+
+void Plazza::Fork::kill()
+{
+    ::kill(_pid, SIGKILL);
 }

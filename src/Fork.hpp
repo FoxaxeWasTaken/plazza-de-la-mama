@@ -15,11 +15,11 @@ namespace Plazza {
         public:
             Fork();
             ~Fork();
-            void fork();
             void wait();
             bool isChild() const;
             bool isParent() const;
             pid_t getPid() const;
+            void kill();
 
         private:
             pid_t _pid;
