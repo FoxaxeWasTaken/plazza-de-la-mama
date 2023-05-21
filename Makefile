@@ -18,7 +18,9 @@ SRC			=	src/Messages.cpp			\
 				src/Thread.cpp				\
 				src/ConditionalVariable.cpp	\
 				src/Mutex.cpp				\
-				src/Fork.cpp
+				src/Fork.cpp				\
+				src/ScopedLock.cpp			\
+				src/Clock.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
@@ -26,7 +28,7 @@ TESTS_SRC	=
 
 TESTS_OBJ	=	$(TESTS_SRC:%.cpp=%.o)
 
-CPPFLAGS	=	-Wall -Wextra -Wshadow -Wpedantic -I./includes -std=c++17 -pthread
+CPPFLAGS	=	-Wall -Wextra -Wshadow -Wpedantic -I./src -std=c++17 -pthread
 
 TESTS_FLAGS	=	-lcriterion
 COVERAGE	=	--coverage -fprofile-arcs -ftest-coverage
