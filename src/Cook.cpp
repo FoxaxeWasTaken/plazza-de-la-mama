@@ -18,7 +18,7 @@ Plazza::Cook::Cook(Plazza::Storage &storage, double timeMultiplier, Plazza::Safe
       _time(0),
       _thread(&Cook::run, this)
 {
-
+    // std::cout << "Create" << std::endl;
 }
 
 Plazza::Cook::~Cook()
@@ -29,16 +29,20 @@ Plazza::Cook::~Cook()
 void Plazza::Cook::run()
 {
     std::size_t timeNeeded = 0;
+    std::size_t startTime = 0;
 
     while (!_isClosing.load()) {
-        if (_toCook.size() == 0)
+        if (_toCook.size() > 0) {
+            _pizza = _toCook.pop();
+        } else {
             continue;
-        _pizza = _toCook.pop();
+        }
         _isCooking = true;
-        while (_storage.hasIngredients(_pizza->getIngredients()) == false);
+        while (!_storage.hasIngredients(_pizza->getIngredients()));
         _storage.takeIngredients(_pizza->getIngredients());
         timeNeeded = _pizza.get()->getCookingTime() * _timeMultiplier;
-        while (_time < timeNeeded);
+        startTime = _time.load();
+        while (_time.load() - startTime < timeNeeded);
         _cooked.push(_pizza);
         _isCooking = false;
     }
@@ -54,7 +58,7 @@ std::atomic<std::size_t> &Plazza::Cook::getTime()
     return _time;
 }
 
-Plazza::Cook::Cook(Cook&& other)
+Plazza::Cook::Cook(Plazza::Cook &&other)
     : _isCooking(other._isCooking.load()),
       _storage(other._storage),
       _pizza(std::move(other._pizza)),
@@ -65,4 +69,5 @@ Plazza::Cook::Cook(Cook&& other)
       _time(other._time.load()),
       _thread(std::move(other._thread))
 {
+    // std::cout << "Move" << std::endl;
 }
