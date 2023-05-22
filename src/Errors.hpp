@@ -30,4 +30,10 @@ namespace Plazza {
             ArgsError(std::string const &message) {_message = "ArgsError: " + message;}
             const char *what() const noexcept override {return _message.c_str();}
     };
+
+    class ParseError : public Error {
+        public:
+            ParseError(std::string const &message) {_message = "ParseError: " + message;}
+            const char *what() const noexcept override {return _message.c_str();}
+    };
 }
