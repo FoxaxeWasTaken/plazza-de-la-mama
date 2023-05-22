@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
+#include <functional>
 
 #include "Ingredients.hpp"
 
@@ -35,6 +37,14 @@ namespace Plazza {
         L = 4,
         XL = 8,
         XXL = 16
+    };
+
+    const std::map<std::string , PizzaSize> stringToSize = {
+        {"S", PizzaSize::S},
+        {"M", PizzaSize::M},
+        {"L", PizzaSize::L},
+        {"XL", PizzaSize::XL},
+        {"XXL", PizzaSize::XXL}
     };
 
     class IPizza {
@@ -102,5 +112,12 @@ namespace Plazza {
             std::vector<Ingredients> getIngredients() const override;
         private:
             std::vector<Ingredients> _ingredients;
+    };
+
+    const std::map<std::string, std::function<std::unique_ptr<Plazza::IPizza >(PizzaSize)>> pizzaFactory = {
+        {"regina", [](PizzaSize size) {return (std::make_unique<Plazza::PizzaRegina>(size));}},
+        {"margarita", [](PizzaSize size) {return (std::make_unique<Plazza::PizzaMargarita>(size));}},
+        {"americana", [](PizzaSize size) {return (std::make_unique<Plazza::PizzaAmericana>(size));}},
+        {"fantasia", [](PizzaSize size) {return (std::make_unique<Plazza::PizzaFantasia>(size));}}
     };
 }
