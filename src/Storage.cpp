@@ -10,7 +10,15 @@
 Plazza::Storage::Storage(std::size_t maxIngredients)
     : _ingredients(), _maxIngredients(maxIngredients)
 {
-    refill(maxIngredients);
+    _ingredients.insert(std::make_pair(Plazza::Doe, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::Tomato, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::Gruyere, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::Ham, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::Mushrooms, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::Steak, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::Eggplant, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::GoatCheese, maxIngredients));
+    _ingredients.insert(std::make_pair(Plazza::ChiefLove, maxIngredients));
 }
 
 void Plazza::Storage::addIngredient(Ingredients ingredient)
@@ -25,7 +33,7 @@ void Plazza::Storage::removeIngredient(Ingredients ingredient)
 
 int Plazza::Storage::getIngredient(Ingredients ingredient) const
 {
-    return _ingredients[ingredient].load();
+    return _ingredients.at(ingredient).load();
 }
 
 void Plazza::Storage::setIngredient(Ingredients ingredient, int quantity)
@@ -36,7 +44,7 @@ void Plazza::Storage::setIngredient(Ingredients ingredient, int quantity)
 bool Plazza::Storage::hasIngredients(std::vector<Ingredients> ingredients) const
 {
     for (auto ingredient : ingredients) {
-        if (_ingredients[ingredient].load() == 0)
+        if (_ingredients.at(ingredient).load() == 0)
             return false;
     }
     return true;
@@ -45,14 +53,17 @@ bool Plazza::Storage::hasIngredients(std::vector<Ingredients> ingredients) const
 void Plazza::Storage::takeIngredients(std::vector<Ingredients> ingredients)
 {
     for (auto ingredient : ingredients) {
-        _ingredients[ingredient].fetch_sub(1);
+        _ingredients.at(ingredient).fetch_sub(1);
     }
 }
 
 void Plazza::Storage::refill(std::size_t nbIngredients)
 {
     for (auto &ingredient : _ingredients) {
-        if (ingredient.load() < _maxIngredients)
-            ingredient.fetch_add(nbIngredients);
+        if (ingredient.second.load() + nbIngredients > _maxIngredients) {
+            ingredient.second.store(_maxIngredients);
+        } else {
+            ingredient.second.fetch_add(nbIngredients);
+        }
     }
 }
