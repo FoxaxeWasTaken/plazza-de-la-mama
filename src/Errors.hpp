@@ -24,4 +24,10 @@ namespace Plazza {
             SafeQueueError(std::string const &message) {_message = "SafeQueueError: " + message;}
             const char *what() const noexcept override {return _message.c_str();}
     };
+
+    class ArgsError : public Error {
+        public:
+            ArgsError(std::string const &message) {_message = "ArgsError: " + message;}
+            const char *what() const noexcept override {return _message.c_str();}
+    };
 }

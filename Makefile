@@ -20,7 +20,8 @@ SRC			=	src/Messages.cpp			\
 				src/Mutex.cpp				\
 				src/Fork.cpp				\
 				src/ScopedLock.cpp			\
-				src/Clock.cpp
+				src/Clock.cpp				\
+				src/Args.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
