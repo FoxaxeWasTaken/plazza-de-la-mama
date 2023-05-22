@@ -21,7 +21,8 @@ SRC			=	src/Messages.cpp			\
 				src/Fork.cpp				\
 				src/ScopedLock.cpp			\
 				src/Clock.cpp				\
-				src/Args.cpp
+				src/Args.cpp				\
+				src/Parser.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
