@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "IMessage.hpp"
+#include "Message.hpp"
 
 namespace Plazza {
     enum Recipient {
@@ -15,48 +15,53 @@ namespace Plazza {
         Reception
     };
 
-    class OrderMessage : public IMessage {
+    class OrderMessage : public Message {
         public:
-            OrderMessage(std::reference_wrapper<IPizza> pizza, Recipient recipient);
+            OrderMessage(std::unique_ptr<IPizza> pizza, Recipient recipient);
             ~OrderMessage() = default;
 
-            MessageType getType() const override;
-            IPizza &getPizza() const;
+            const std::unique_ptr<IPizza> &getPizza() const;
             Recipient getRecipient() const;
+            std::string pack() const;
+            static std::unique_ptr<OrderMessage> unpack(const std::string &str);
         private:
-            std::reference_wrapper<IPizza> _pizza;
+            std::unique_ptr<IPizza> _pizza;
             Recipient _recipient;
     };
+    
 
-    class StatusMessage : public IMessage {
+    class StatusMessage : public Message {
         public:
             StatusMessage(std::string status);
             ~StatusMessage() = default;
 
-            MessageType getType() const override;
             std::string getStatus() const;
+            std::string pack() const;
+            static std::unique_ptr<StatusMessage> unpack(const std::string &str);
         private:
             std::string _status;
     };
 
-    class ErrorMessage : public IMessage {
+    class ErrorMessage : public Message {
         public:
-            ErrorMessage(std::string error, std::vector<std::reference_wrapper<IPizza>> pizzas);
+            ErrorMessage(std::string error, const std::vector<std::shared_ptr<IPizza>> &pizzas);
             ~ErrorMessage() = default;
 
-            MessageType getType() const override;
             std::string getError() const;
-            std::vector<std::reference_wrapper<IPizza>> getPizzas() const;
+            const std::vector<std::shared_ptr<IPizza>> &getPizzas() const;
+            std::string pack() const;
+            static std::unique_ptr<ErrorMessage> unpack(const std::string &str);
         private:
             std::string _error;
-            std::vector<std::reference_wrapper<IPizza>> _pizzas;
+            std::vector<std::shared_ptr<IPizza>> _pizzas;
     };
 
-    class QuitMessage : public IMessage {
+    class QuitMessage : public Message {
         public:
-            QuitMessage() = default;
+            QuitMessage();
             ~QuitMessage() = default;
 
-            MessageType getType() const override;
+            std::string pack() const;
+            static std::unique_ptr<QuitMessage> unpack(const std::string &str);
     };
 }
