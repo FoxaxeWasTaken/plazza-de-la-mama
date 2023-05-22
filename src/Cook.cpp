@@ -53,9 +53,9 @@ bool Plazza::Cook::isCooking() const
     return _isCooking.load();
 }
 
-std::atomic<std::size_t> &Plazza::Cook::getTime()
+void Plazza::Cook::addTime(const double timeAdd)
 {
-    return _time;
+    _time.store(_time.load() + timeAdd);
 }
 
 Plazza::Cook::Cook(Plazza::Cook &&other)

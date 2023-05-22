@@ -22,7 +22,7 @@ namespace Plazza {
 
             void run();
             bool isCooking() const;
-            std::atomic<std::size_t> &getTime();
+            void addTime(const double timeAdd);
         private:
             std::atomic<bool> _isCooking;
             Storage &_storage;
@@ -31,7 +31,7 @@ namespace Plazza {
             SafeQueue<std::unique_ptr<IPizza>> &_toCook;
             SafeQueue<std::unique_ptr<IPizza>> &_cooked;
             std::atomic<bool> &_isClosing;
-            std::atomic<std::size_t> _time;
+            std::atomic<double> _time;
             Thread _thread;
     };
 }

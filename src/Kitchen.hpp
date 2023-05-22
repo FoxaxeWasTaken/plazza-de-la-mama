@@ -28,7 +28,7 @@ namespace Plazza {
             Storage _storage;
             SafeQueue<std::unique_ptr<IPizza>> _toCook;
             SafeQueue<std::unique_ptr<IPizza>> _cooked;
-            std::vector<Cook> _cooks;
+            std::vector<std::unique_ptr<Cook>> _cooks;
             std::size_t _timeRestock;
             std::atomic<bool> _isClosing;
     };

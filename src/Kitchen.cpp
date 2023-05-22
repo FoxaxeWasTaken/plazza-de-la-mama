@@ -11,7 +11,7 @@ Plazza::Kitchen::Kitchen(std::size_t nbCooks, std::size_t timeRestock, double ti
     : _clock(), _storage(), _toCook(), _cooked(), _cooks(), _timeRestock(timeRestock), _isClosing(false)
 {
     for (std::size_t i = 0; i < nbCooks; i++)
-        _cooks.emplace_back(_storage, timeMultiplier, _toCook, _cooked, _isClosing);
+        _cooks.push_back(std::make_unique<Cook>(_storage, timeMultiplier, _toCook, _cooked, _isClosing));
     run();
 }
 
@@ -31,7 +31,7 @@ void Plazza::Kitchen::run()
         refillTime += newTime * 1000;
         closeTime += newTime;
         for (auto &cook : _cooks) {
-            cook.getTime().fetch_add(newTime);
+            cook->addTime(newTime);
         }
         if (refillTime >= static_cast<double>(_timeRestock)) {
             _storage.refill();
@@ -51,7 +51,7 @@ std::size_t Plazza::Kitchen::getCookOccupancy()
     std::size_t nbCooks = 0;
 
     for (auto &cook : _cooks) {
-        if (cook.isCooking())
+        if (cook->isCooking())
             nbCooks++;
     }
     return nbCooks;
