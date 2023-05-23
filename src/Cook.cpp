@@ -7,7 +7,7 @@
 
 #include "Cook.hpp"
 
-Plazza::Cook::Cook(Plazza::Storage &storage, double timeMultiplier, Plazza::SafeQueue<std::unique_ptr<IPizza>> &toCook, Plazza::SafeQueue<std::unique_ptr<IPizza>> &cooked, std::atomic<bool> &isClosing)
+Plazza::Cook::Cook(Storage & storage, double timeMultiplier, Plazza::SafeQueue<std::unique_ptr<IPizza>> &toCook, Plazza::SafeQueue<std::unique_ptr<IPizza>> &cooked, std::atomic<bool> &isClosing)
     : _isCooking(false),
       _storage(storage),
       _pizza(nullptr),
@@ -18,7 +18,6 @@ Plazza::Cook::Cook(Plazza::Storage &storage, double timeMultiplier, Plazza::Safe
       _time(0),
       _thread(&Cook::run, this)
 {
-    // std::cout << "Create" << std::endl;
 }
 
 Plazza::Cook::~Cook()
@@ -30,6 +29,7 @@ void Plazza::Cook::run()
 {
     std::size_t timeNeeded = 0;
     std::size_t startTime = 0;
+    sleep(1);
 
     while (!_isClosing.load()) {
         if (_toCook.size() > 0) {
@@ -56,18 +56,4 @@ bool Plazza::Cook::isCooking() const
 void Plazza::Cook::addTime(const double timeAdd)
 {
     _time.store(_time.load() + timeAdd);
-}
-
-Plazza::Cook::Cook(Plazza::Cook &&other)
-    : _isCooking(other._isCooking.load()),
-      _storage(other._storage),
-      _pizza(std::move(other._pizza)),
-      _timeMultiplier(other._timeMultiplier),
-      _toCook(other._toCook),
-      _cooked(other._cooked),
-      _isClosing(other._isClosing),
-      _time(other._time.load()),
-      _thread(std::move(other._thread))
-{
-    // std::cout << "Move" << std::endl;
 }

@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <unistd.h>
+
 #include "Clock.hpp"
 #include "Pizzas.hpp"
 #include "Storage.hpp"
@@ -17,7 +19,6 @@ namespace Plazza {
     class Cook {
         public:
             Cook(Storage &storage, double timeMultiplier, SafeQueue<std::unique_ptr<IPizza>> &toCook, SafeQueue<std::unique_ptr<IPizza>> &cooked, std::atomic<bool> &isClosing);
-            Cook(Cook &&other);
             ~Cook();
 
             void run();
