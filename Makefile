@@ -13,6 +13,7 @@ NAME		=	plazza
 MAIN		=	src/Main.cpp
 
 SRC			=	src/Messages.cpp			\
+				src/NamedPipes.cpp			\
 				src/Pizzas.cpp				\
 				src/Storage.cpp				\
 				src/Thread.cpp				\
@@ -22,7 +23,9 @@ SRC			=	src/Messages.cpp			\
 				src/ScopedLock.cpp			\
 				src/Clock.cpp				\
 				src/Cook.cpp				\
-				src/Kitchen.cpp
+				src/Kitchen.cpp     \
+				src/Args.cpp				\
+				src/Parser.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
