@@ -30,6 +30,9 @@ namespace Plazza {
             T pop()
             {
                 ScopedLock lock(_mutex);
+                if (_queue.empty()) {
+                    throw Plazza::SafeQueueError("Queue is empty");
+                }
                 T element = std::move(_queue.front());
                 _queue.pop();
                 return element;
