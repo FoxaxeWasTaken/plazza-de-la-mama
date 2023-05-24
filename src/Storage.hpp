@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <array>
+#include <map>
 #include <vector>
 #include <atomic>
 
@@ -27,7 +27,7 @@ namespace Plazza {
             void takeIngredients(std::vector<Ingredients> ingredients);
             void refill(std::size_t nbIngredients = 1);
         private:
-            std::array<std::atomic<std::size_t>, 9> _ingredients;
+            std::map<Ingredients, std::atomic<int>> _ingredients;
             std::size_t _maxIngredients;
     };
 }
