@@ -24,6 +24,12 @@ void Plazza::GetLine::getLine()
 
     while (_running) {
         std::getline(std::cin, command);
+        if (!std::cin) {
+            if (std::cin.eof()) {
+                command = "exit";
+                _commands.push(command);
+            }
+        }
         _commands.push(command);
     }
 }
