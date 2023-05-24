@@ -23,7 +23,8 @@ SRC			=	src/Messages.cpp			\
 				src/ScopedLock.cpp			\
 				src/Clock.cpp				\
 				src/Args.cpp				\
-				src/Parser.cpp
+				src/Parser.cpp				\
+				src/GetLine.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
