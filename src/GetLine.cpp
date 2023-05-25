@@ -15,7 +15,11 @@ Plazza::GetLine::GetLine()
 Plazza::GetLine::~GetLine()
 {
     _running = false;
-    _thread.join();
+    if (_thread.isJoinable()) {
+        _thread.join();
+    } else {
+        _thread.cancel();
+    }
 }
 
 void Plazza::GetLine::getLine()
