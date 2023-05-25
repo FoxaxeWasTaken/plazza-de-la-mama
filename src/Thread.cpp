@@ -37,3 +37,9 @@ bool Plazza::Thread::isRunning() const
 {
     return pthread_kill(_thread, 0) == 0;
 }
+
+Plazza::Thread::Thread(Thread&& other)
+    : _thread(other._thread)
+{
+    other._thread = 0;
+}

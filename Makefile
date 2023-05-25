@@ -22,6 +22,8 @@ SRC			=	src/Messages.cpp			\
 				src/Fork.cpp				\
 				src/ScopedLock.cpp			\
 				src/Clock.cpp				\
+				src/Cook.cpp				\
+				src/Kitchen.cpp     \
 				src/Args.cpp				\
 				src/Parser.cpp				\
 				src/GetLine.cpp
