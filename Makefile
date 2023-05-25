@@ -26,7 +26,8 @@ SRC			=	src/Messages.cpp			\
 				src/Kitchen.cpp     		\
 				src/Args.cpp				\
 				src/Parser.cpp				\
-				src/Logger.cpp
+				src/Logger.cpp				\
+				src/GetLine.cpp
 
 OBJ			=	$(SRC:%.cpp=%.o) $(MAIN:%.cpp=%.o)
 
