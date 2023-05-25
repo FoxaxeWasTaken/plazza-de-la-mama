@@ -25,12 +25,7 @@ void Plazza::Thread::detach()
 
 bool Plazza::Thread::isJoinable() const
 {
-    return pthread_join(_thread, nullptr) == 0;
-}
-
-bool Plazza::Thread::isDetached() const
-{
-    return pthread_detach(_thread) == 0;
+    return pthread_tryjoin_np(_thread, nullptr) == 0;
 }
 
 bool Plazza::Thread::isRunning() const
@@ -42,4 +37,9 @@ Plazza::Thread::Thread(Thread&& other)
     : _thread(other._thread)
 {
     other._thread = 0;
+}
+
+void Plazza::Thread::cancel()
+{
+    pthread_cancel(_thread);
 }
