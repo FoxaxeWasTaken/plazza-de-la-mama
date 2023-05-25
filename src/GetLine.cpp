@@ -20,15 +20,13 @@ Plazza::GetLine::~GetLine()
 
 void Plazza::GetLine::getLine()
 {
-    std::string command = "";
+    std::string command;
 
     while (_running) {
         std::getline(std::cin, command);
-        if (!std::cin) {
-            if (std::cin.eof()) {
-                command = "exit";
-                _commands.push(command);
-            }
+        if (std::cin.eof() || command == "exit") {
+            command = "exit";
+            _running = false;
         }
         _commands.push(command);
     }
