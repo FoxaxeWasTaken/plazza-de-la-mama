@@ -33,9 +33,8 @@ namespace Plazza {
             void join();
             void detach();
             bool isJoinable() const;
-            bool isDetached() const;
             bool isRunning() const;
-
+            void cancel();
         private:
             pthread_t _thread;
     };
