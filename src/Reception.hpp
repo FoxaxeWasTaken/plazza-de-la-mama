@@ -33,6 +33,12 @@ namespace Plazza {
             */
             void cookPizzas(std::vector<std::unique_ptr<IPizza>> &pizzas);
 
+            /**
+             * @brief Process messages from the kitchens
+             * @param msg The message to process
+            */
+            void processKitchenMessage(std::size_t kitchenIndex, const std::string &msg);
+
         public:
             /**
              * @brief Construct a new Reception object

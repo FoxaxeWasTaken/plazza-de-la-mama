@@ -54,6 +54,7 @@ void Plazza::Kitchen::run()
             continue;
         _processMessage(msg);
     }
+    _sendQuitMessage();
 }
 
 void Plazza::Kitchen::_processMessage(const std::string &msg)

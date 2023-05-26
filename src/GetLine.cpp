@@ -29,11 +29,11 @@ void Plazza::GetLine::getLine()
     while (_running) {
         std::getline(std::cin, command);
         if (std::cin.eof() || command == "exit") {
-            command = "exit";
+            command = "";
             _running = false;
         }
         _commands.push(command);
-        usleep(10000);
+        usleep(1000);
     }
 }
 
