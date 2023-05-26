@@ -47,6 +47,7 @@ void Plazza::Kitchen::run()
             _isClosing.store(true);
             break;
         }
+        usleep(10000);
         std::string msg;
         _pipes >> msg;
         if (msg.empty())
@@ -76,6 +77,8 @@ void Plazza::Kitchen::_processMessage(const std::string &msg)
     }
 }
 
+
+
 std::size_t Plazza::Kitchen::getCookOccupancy()
 {
     std::size_t nbCooks = 0;
@@ -91,13 +94,19 @@ std::size_t Plazza::Kitchen::getAvailability()
 {
     int pizzasInQueue = _toCook.size();
     int pizzasCooking = getCookOccupancy();
-    int totalAv = getCookCount() * 2;
+    int totalAv = _getCookCount() * 2;
 
     int result = totalAv - pizzasInQueue - pizzasCooking;
     return result > 0 ? result : 0;
 }
 
-std::size_t Plazza::Kitchen::getCookCount() const
+std::size_t Plazza::Kitchen::_getCookCount() const
 {
     return _cooks.size();
+}
+
+void Plazza::Kitchen::_sendQuitMessage()
+{
+    Plazza::QuitMessage quit(Plazza::R_Reception);
+    quit >> _pipes;
 }

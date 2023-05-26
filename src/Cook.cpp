@@ -35,6 +35,7 @@ void Plazza::Cook::run()
         if (_toCook.size() > 0) {
             _pizza = _toCook.pop();
         } else {
+            usleep(1000);
             continue;
         }
         _isCooking = true;

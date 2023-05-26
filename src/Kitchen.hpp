@@ -36,7 +36,8 @@ namespace Plazza {
             std::atomic<bool> _isClosing;
             NamedPipes &_pipes;
 
-            std::size_t getCookCount() const;
+            std::size_t _getCookCount() const;
             void _processMessage(const std::string &msg);
+            void _sendQuitMessage();
     };
 }

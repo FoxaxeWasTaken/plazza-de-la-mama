@@ -18,6 +18,10 @@ Plazza::Reception::Reception(std::size_t nbCooks, std::size_t timeRestock, doubl
 Plazza::Reception::~Reception()
 {
     _getLine.stop();
+    for (auto &kitchen : _kitchens) {
+        Plazza::Fork &fork = *std::get<0>(kitchen);
+        fork.kill();
+    }
 }
 
 void Plazza::Reception::printKitchenStatuses()
@@ -49,6 +53,7 @@ void Plazza::Reception::run()
 
     while (_getLine.isRunning()) {
         try {
+            usleep(10000);
             Parser parser;
             command = _getLine.getCommand();
             if (command.empty()) {

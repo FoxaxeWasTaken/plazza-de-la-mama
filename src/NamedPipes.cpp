@@ -90,7 +90,8 @@ void Plazza::NamedPipes::operator>>(std::string &str)
         }
     }
     if (ret == 0) {
-        throw NamedPipesError("pipe closed unexpectedly");
+        str = "";
+        return;
     }
     str = buffer;
 }

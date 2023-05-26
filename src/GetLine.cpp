@@ -33,6 +33,7 @@ void Plazza::GetLine::getLine()
             _running = false;
         }
         _commands.push(command);
+        usleep(10000);
     }
 }
 
