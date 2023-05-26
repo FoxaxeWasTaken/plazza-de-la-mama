@@ -14,6 +14,11 @@
 #include <string>
 
 namespace Plazza {
+    enum Recipient {
+        R_Kitchen,
+        R_Reception
+    };
+
     enum MessageType {
         None = -1,
         Order,
@@ -26,8 +31,8 @@ namespace Plazza {
 
     class Message {
         public:
-            Message(MessageType type)
-                : _type(type)
+            Message(MessageType type, Recipient recipient)
+                : _type(type), _recipient(recipient)
             {
             }
 
@@ -38,9 +43,19 @@ namespace Plazza {
                 return _type;
             }
 
+            Recipient getRecipient() const
+            {
+                return _recipient;
+            }
+
             static MessageType getTypeFromStr(const std::string &str)
             {
                 return static_cast<MessageType>(std::stoi(str.substr(0, str.find(';'))));
+            }
+
+            static Recipient getRecipientFromStr(const std::string &str)
+            {
+                return static_cast<Recipient>(std::stoi(str.substr(str.find(';') + 2)));
             }
 
             virtual std::string pack() const = 0;
@@ -58,5 +73,6 @@ namespace Plazza {
 
         protected:
             MessageType _type;
+            Recipient _recipient;
     };
 }

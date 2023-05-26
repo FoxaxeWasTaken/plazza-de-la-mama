@@ -39,6 +39,11 @@ namespace Plazza {
             NamedPipes(std::string inName, std::string outName, bool isParent = true);
             ~NamedPipes();
 
+            /**
+             * @brief Remove pipes that already exist
+            */
+            static void remove_existing_pipes();
+
             void operator>>(std::string &str);
             void operator<<(const std::string &str);
     };

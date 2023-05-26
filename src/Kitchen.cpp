@@ -7,8 +7,12 @@
 
 #include "Kitchen.hpp"
 
-Plazza::Kitchen::Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier)
-    : _clock(), _storage(), _toCook(), _cooked(), _cooks(), _timeRestock(timeRestock), _isClosing(false)
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+
+Plazza::Kitchen::Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier, NamedPipes &pipes)
+    : _clock(), _storage(), _toCook(), _cooked(), _cooks(), _timeRestock(timeRestock), _isClosing(false), _pipes(pipes)
 {
     for (std::size_t i = 0; i < nbCooks; i++)
         _cooks.push_back(std::make_unique<Cook>(_storage, timeMultiplier, _toCook, _cooked, _isClosing));
@@ -25,7 +29,7 @@ void Plazza::Kitchen::run()
     double closeTime = 0;
     double newTime;
 
-    while (true) {
+    while (_isClosing.load() == false) {
         newTime = _clock.getElapsedTime();
         _clock.restart();
         refillTime += newTime * 1000;
@@ -43,6 +47,32 @@ void Plazza::Kitchen::run()
             _isClosing.store(true);
             break;
         }
+        std::string msg;
+        _pipes >> msg;
+        if (msg.empty())
+            continue;
+        _processMessage(msg);
+    }
+}
+
+void Plazza::Kitchen::_processMessage(const std::string &msg)
+{
+    Plazza::MessageType type = Plazza::Message::getTypeFromStr(msg);
+
+    if (type == Plazza::MessageType::Status) {
+        std::ostringstream oss;
+        oss << "\t" << "Pizzas in queue: " << _toCook.size() << std::endl;
+        oss << "\t" << "Pizzas cooking: " << getCookOccupancy() << std::endl;
+        oss << "\t" << "Can cook " << getAvailability() << " pizzas" << std::endl;
+        oss << "\t" << "Ingredients: ";
+        int ingredient = 1;
+        while (ingredient <= 256) {
+            Ingredients casted = static_cast<Ingredients>(ingredient);
+            oss << " " << ingredientsMap.at(casted) << ": " << _storage.getIngredient(casted);
+            ingredient *= 2;
+        }
+        Plazza::StatusMessage status(oss.str(), Plazza::R_Reception);
+        status >> _pipes;
     }
 }
 
@@ -55,4 +85,19 @@ std::size_t Plazza::Kitchen::getCookOccupancy()
             nbCooks++;
     }
     return nbCooks;
+}
+
+std::size_t Plazza::Kitchen::getAvailability()
+{
+    int pizzasInQueue = _toCook.size();
+    int pizzasCooking = getCookOccupancy();
+    int totalAv = getCookCount() * 2;
+
+    int result = totalAv - pizzasInQueue - pizzasCooking;
+    return result > 0 ? result : 0;
+}
+
+std::size_t Plazza::Kitchen::getCookCount() const
+{
+    return _cooks.size();
 }

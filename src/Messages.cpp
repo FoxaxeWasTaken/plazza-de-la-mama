@@ -11,8 +11,8 @@
 #include <iomanip>
 #include <sstream>
 
-Plazza::OrderMessage::OrderMessage(std::unique_ptr<IPizza> pizza, Recipient recipient)
-    : Message(Plazza::MessageType::Order), _pizza(std::move(pizza)), _recipient(recipient)
+Plazza::OrderMessage::OrderMessage(std::unique_ptr<IPizza> pizza, Plazza::Recipient recipient)
+    : Message(Plazza::MessageType::Order, recipient), _pizza(std::move(pizza))
 {
 }
 
@@ -25,8 +25,8 @@ std::string Plazza::OrderMessage::pack() const
 {
     std::ostringstream oss;
 
-    oss << std::setw(2) << std::setfill('0') << _type << ";";
-    oss << std::setw(2) << std::setfill('0') << _recipient << ";";
+    oss << std::setw(2) << std::setfill('0') << getType() << ";";
+    oss << std::setw(2) << std::setfill('0') << getRecipient() << ";";
     oss << std::setw(2) << std::setfill('0') << _pizza->getType() << ";";
     oss << std::setw(2) << std::setfill('0') << _pizza->getSize();
     return oss.str();
@@ -68,13 +68,8 @@ std::unique_ptr<Plazza::OrderMessage> Plazza::OrderMessage::unpack(const std::st
     return msg;
 }
 
-Plazza::Recipient Plazza::OrderMessage::getRecipient() const
-{
-    return _recipient;
-}
-
-Plazza::StatusMessage::StatusMessage(std::string status)
-    : Message(Plazza::MessageType::Status), _status(status)
+Plazza::StatusMessage::StatusMessage(std::string status, Plazza::Recipient recipient)
+    : Message(Plazza::MessageType::Status, recipient), _status(status)
 {
 }
 
@@ -87,7 +82,9 @@ std::string Plazza::StatusMessage::pack() const
 {
     std::ostringstream oss;
 
-    oss << std::setw(2) << std::setfill('0') << _type << ";" << _status << ";";
+    oss << std::setw(2) << std::setfill('0') << getType() << ";";
+    oss << std::setw(2) << std::setfill('0') << getRecipient() << ";";
+    oss << _status;
     return oss.str();
 }
 
@@ -95,16 +92,19 @@ std::unique_ptr<Plazza::StatusMessage> Plazza::StatusMessage::unpack(const std::
 {
     std::istringstream iss(str);
     std::string type;
+    std::string recipientStr;
     std::string status;
 
     std::getline(iss, type, ';');
+    std::getline(iss, recipientStr, ';');
+    Plazza::Recipient recipient = static_cast<Plazza::Recipient>(std::stoi(recipientStr));
     std::getline(iss, status, ';');
-    std::unique_ptr<Plazza::StatusMessage> msg = std::make_unique<Plazza::StatusMessage>(status);
+    std::unique_ptr<Plazza::StatusMessage> msg = std::make_unique<Plazza::StatusMessage>(status, recipient);
     return msg;
 }
 
-Plazza::ErrorMessage::ErrorMessage(std::string error, const std::vector<std::shared_ptr<IPizza>> &pizzas)
-    : Message(Plazza::MessageType::Error), _error(error), _pizzas(pizzas)
+Plazza::ErrorMessage::ErrorMessage(std::string error, const std::vector<std::shared_ptr<IPizza>> &pizzas, Plazza::Recipient recipient)
+    : Message(Plazza::MessageType::Error, recipient), _error(error), _pizzas(pizzas)
 {
 }
 
@@ -117,7 +117,8 @@ std::string Plazza::ErrorMessage::pack() const
 {
     std::ostringstream oss;
 
-    oss << std::setw(2) << std::setfill('0') << _type << ";";
+    oss << std::setw(2) << std::setfill('0') << getType() << ";";
+    oss << std::setw(2) << std::setfill('0') << getRecipient() << ";";
     oss << _error << ";";
     oss << std::setw(2) << std::setfill('0') << _pizzas.size() << ";";
     for (auto &pizza : _pizzas) {
@@ -131,10 +132,13 @@ std::unique_ptr<Plazza::ErrorMessage> Plazza::ErrorMessage::unpack(const std::st
 {
     std::istringstream iss(str);
     std::string type;
+    std::string recipientStr;
     std::string error;
     std::string nbPizzas;
 
     std::getline(iss, type, ';');
+    std::getline(iss, recipientStr, ';');
+    Plazza::Recipient recipient = static_cast<Plazza::Recipient>(std::stoi(recipientStr));
     std::getline(iss, error, ';');
     std::getline(iss, nbPizzas, ';');
     std::vector<std::shared_ptr<Plazza::IPizza>> pizzas;
@@ -163,7 +167,7 @@ std::unique_ptr<Plazza::ErrorMessage> Plazza::ErrorMessage::unpack(const std::st
         }
         pizzas.push_back(pizza);
     }
-    std::unique_ptr<Plazza::ErrorMessage> msg = std::make_unique<Plazza::ErrorMessage>(error, pizzas);
+    std::unique_ptr<Plazza::ErrorMessage> msg = std::make_unique<Plazza::ErrorMessage>(error, pizzas, recipient);
     return msg;
 }
 
@@ -172,8 +176,8 @@ const std::vector<std::shared_ptr<Plazza::IPizza>> &Plazza::ErrorMessage::getPiz
     return _pizzas;
 }
 
-Plazza::QuitMessage::QuitMessage()
-    : Message(Plazza::MessageType::Quit)
+Plazza::QuitMessage::QuitMessage(Plazza::Recipient recipient)
+    : Message(Plazza::MessageType::Quit, recipient)
 {
 }
 
@@ -181,6 +185,20 @@ std::string Plazza::QuitMessage::pack() const
 {
     std::ostringstream oss;
 
-    oss << std::setw(2) << std::setfill('0') << _type << ";";
+    oss << std::setw(2) << std::setfill('0') << getType() << ";";
+    oss << std::setw(2) << std::setfill('0') << getRecipient() << ";";
     return oss.str();
+}
+
+std::unique_ptr<Plazza::QuitMessage> Plazza::QuitMessage::unpack(const std::string &str)
+{
+    std::istringstream iss(str);
+    std::string type;
+    std::string recipientStr;
+
+    std::getline(iss, type, ';');
+    std::getline(iss, recipientStr, ';');
+    Plazza::Recipient recipient = static_cast<Plazza::Recipient>(std::stoi(recipientStr));
+    std::unique_ptr<Plazza::QuitMessage> msg = std::make_unique<Plazza::QuitMessage>(recipient);
+    return msg;
 }

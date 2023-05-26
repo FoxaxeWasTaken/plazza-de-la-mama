@@ -7,12 +7,16 @@
 
 #include <iostream>
 #include "Args.hpp"
+#include "Reception.hpp"
 
 int main(int ac, char **av)
 {
     Plazza::Args a;
     try {
         a.checkArg(ac, av);
+        Plazza::NamedPipes::remove_existing_pipes();
+        Plazza::Reception r(a.getNbCooks(), a.getTimeRefill(), a.getMultiplier());
+        r.run();
     } catch (Plazza::ArgsError &e) {
         std::cout << e.what() << std::endl;
         return (84);

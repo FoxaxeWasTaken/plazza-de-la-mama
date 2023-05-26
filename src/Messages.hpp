@@ -10,29 +10,22 @@
 #include "Message.hpp"
 
 namespace Plazza {
-    enum Recipient {
-        Kitchen,
-        Reception
-    };
-
     class OrderMessage : public Message {
         public:
             OrderMessage(std::unique_ptr<IPizza> pizza, Recipient recipient);
             ~OrderMessage() = default;
 
             const std::unique_ptr<IPizza> &getPizza() const;
-            Recipient getRecipient() const;
             std::string pack() const;
             static std::unique_ptr<OrderMessage> unpack(const std::string &str);
         private:
             std::unique_ptr<IPizza> _pizza;
-            Recipient _recipient;
     };
     
 
     class StatusMessage : public Message {
         public:
-            StatusMessage(std::string status);
+            StatusMessage(std::string status, Recipient recipient);
             ~StatusMessage() = default;
 
             std::string getStatus() const;
@@ -44,7 +37,7 @@ namespace Plazza {
 
     class ErrorMessage : public Message {
         public:
-            ErrorMessage(std::string error, const std::vector<std::shared_ptr<IPizza>> &pizzas);
+            ErrorMessage(std::string error, const std::vector<std::shared_ptr<IPizza>> &pizzas, Recipient recipient);
             ~ErrorMessage() = default;
 
             std::string getError() const;
@@ -58,7 +51,7 @@ namespace Plazza {
 
     class QuitMessage : public Message {
         public:
-            QuitMessage();
+            QuitMessage(Recipient recipient);
             ~QuitMessage() = default;
 
             std::string pack() const;
