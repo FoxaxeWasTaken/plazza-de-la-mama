@@ -24,8 +24,6 @@ namespace Plazza {
             ~Kitchen();
             
             void run();
-            std::size_t getCookOccupancy();
-            std::size_t getAvailability();
         private:
             Clock _clock;
             Storage _storage;
@@ -37,7 +35,10 @@ namespace Plazza {
             NamedPipes &_pipes;
 
             std::size_t _getCookCount() const;
+            std::size_t _getCookOccupancy();
+            std::size_t _getAvailability();
             void _processMessage(const std::string &msg);
             void _sendQuitMessage();
+            void _sendPizzaOrders();
     };
 }

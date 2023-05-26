@@ -16,7 +16,7 @@ Plazza::OrderMessage::OrderMessage(std::unique_ptr<IPizza> pizza, Plazza::Recipi
 {
 }
 
-const std::unique_ptr<Plazza::IPizza> &Plazza::OrderMessage::getPizza() const
+std::unique_ptr<Plazza::IPizza> &Plazza::OrderMessage::getPizza()
 {
     return _pizza;
 }
@@ -68,8 +68,15 @@ std::unique_ptr<Plazza::OrderMessage> Plazza::OrderMessage::unpack(const std::st
     return msg;
 }
 
-Plazza::StatusMessage::StatusMessage(std::string status, Plazza::Recipient recipient)
-    : Message(Plazza::MessageType::Status, recipient), _status(status)
+Plazza::StatusMessage::StatusMessage(Plazza::Recipient recipient)
+    : Message(Plazza::MessageType::Status, recipient), _status("ask"), _availability(0)
+{
+    if (recipient != Plazza::Recipient::R_Kitchen)
+        throw std::runtime_error("StatusMessage: recipient for constructor with no other args must be R_Kitchen");
+}
+
+Plazza::StatusMessage::StatusMessage(std::string status, std::size_t availability, Plazza::Recipient recipient)
+    : Message(Plazza::MessageType::Status, recipient), _status(status), _availability(availability)
 {
 }
 
@@ -78,13 +85,21 @@ std::string Plazza::StatusMessage::getStatus() const
     return _status;
 }
 
+std::size_t Plazza::StatusMessage::getAvailability() const
+{
+    return _availability;
+}
+
 std::string Plazza::StatusMessage::pack() const
 {
     std::ostringstream oss;
 
     oss << std::setw(2) << std::setfill('0') << getType() << ";";
+    oss << std::setw(4) << std::setfill('0') << getAvailability() << ";";
     oss << std::setw(2) << std::setfill('0') << getRecipient() << ";";
-    oss << _status;
+    std::string status = getStatus();
+    std::replace(status.begin(), status.end(), '\n', '$');
+    oss << status;
     return oss.str();
 }
 
@@ -92,14 +107,18 @@ std::unique_ptr<Plazza::StatusMessage> Plazza::StatusMessage::unpack(const std::
 {
     std::istringstream iss(str);
     std::string type;
+    std::string availabilityStr;
     std::string recipientStr;
     std::string status;
 
     std::getline(iss, type, ';');
+    std::getline(iss, availabilityStr, ';');
     std::getline(iss, recipientStr, ';');
     Plazza::Recipient recipient = static_cast<Plazza::Recipient>(std::stoi(recipientStr));
+    std::size_t availability = std::stoi(availabilityStr);
     std::getline(iss, status, ';');
-    std::unique_ptr<Plazza::StatusMessage> msg = std::make_unique<Plazza::StatusMessage>(status, recipient);
+    std::replace(status.begin(), status.end(), '$', '\n');
+    std::unique_ptr<Plazza::StatusMessage> msg = std::make_unique<Plazza::StatusMessage>(status, availability, recipient);
     return msg;
 }
 

@@ -12,7 +12,6 @@
 Plazza::Reception::Reception(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier)
     : _nbCooks(nbCooks), _timeRestock(timeRestock), _timeMultiplier(timeMultiplier), _getLine()
 {
-    createKitchen();
 }
 
 Plazza::Reception::~Reception()
@@ -30,7 +29,7 @@ void Plazza::Reception::printKitchenStatuses()
     std::size_t i = 1;
     for (auto &kitchen : _kitchens) {
         Plazza::NamedPipes &pipes = *std::get<1>(kitchen);
-        Plazza::StatusMessage msg("", Plazza::R_Kitchen);
+        Plazza::StatusMessage msg(Plazza::R_Kitchen);
         msg >> pipes;
         std::string answer;
         while (answer.empty()) {
@@ -49,23 +48,74 @@ void Plazza::Reception::printKitchenStatuses()
 
 void Plazza::Reception::cookPizzas(std::vector<std::unique_ptr<IPizza>> &pizzas)
 {
-    std::cout << "need to cook " << pizzas.size() << " pizzas" << std::endl;
+    std::vector<std::pair<std::size_t, std::size_t>> availability;
+
+    for (std::size_t i = 0; i < _kitchens.size(); i++) {
+        auto &kitchen = _kitchens[i];
+        Plazza::NamedPipes &pipes = *std::get<1>(kitchen);
+        Plazza::StatusMessage msg(Plazza::R_Kitchen);
+        msg >> pipes;
+        std::string answer;
+        while (answer.empty()) {
+            pipes >> answer;
+            usleep(1000);
+        }
+        if (Plazza::Message::getTypeFromStr(answer) != Plazza::Status) {
+            std::cout << "Got wrong message type, the kitchen closed before getting the status" << std::endl;
+            continue;
+        }
+        std::unique_ptr<Plazza::StatusMessage> status = Plazza::Message::unpack<Plazza::StatusMessage>(answer);
+        availability.push_back(std::make_pair(i, status->getAvailability()));
+    }
+
+    std::size_t availabilitySum = 0;
+    for (auto &pair : availability)
+        availabilitySum += pair.second;
+    while (availabilitySum < pizzas.size())  {
+        createKitchen();
+        availabilitySum += _nbCooks * 2;
+        availability.push_back(std::make_pair(_kitchens.size() - 1, _nbCooks * 2));
+    }
+
+    for (auto &pizza : pizzas) {
+        std::size_t kitchenIndex = 0;
+        for (std::size_t i = 1; i < availability.size(); i++) {
+            if (availability[i].second > availability[kitchenIndex].second) {
+                kitchenIndex = i;
+            }
+        }
+        auto &kitchen = _kitchens[availability[kitchenIndex].first];
+        Plazza::NamedPipes &pipes = *std::get<1>(kitchen);
+        Plazza::OrderMessage msg(std::move(pizza), R_Kitchen);
+        msg >> pipes;
+        availability[kitchenIndex].second--;
+        usleep(10000);
+    }
+    usleep(10000);
 }
 
-void Plazza::Reception::processKitchenMessage(std::size_t kitchenIndex, const std::string &msg)
+void Plazza::Reception::processKitchenMessage(std::size_t kitchenIndex, const std::string &msg, std::vector<std::size_t> &toDelete)
 {
     Plazza::MessageType type = Plazza::Message::getTypeFromStr(msg);
 
     switch (type) {
         case Plazza::Quit:
             std::cout << "Kitchen " << kitchenIndex + 1 << " quitted gracefully" << std::endl;
-            std::get<0>(_kitchens[kitchenIndex])->kill();
-            _kitchens.erase(_kitchens.begin() + kitchenIndex);
+            toDelete.push_back(kitchenIndex);
             break;
         case Plazza::Error:
-            std::cout << "Kitchen " << kitchenIndex + 1 << " encountered an error: " << msg << std::endl;
-            std::get<0>(_kitchens[kitchenIndex])->kill();
-            _kitchens.erase(_kitchens.begin() + kitchenIndex);
+            {
+                std::unique_ptr<Plazza::ErrorMessage> errormsg = Plazza::Message::unpack<Plazza::ErrorMessage>(msg);
+                std::cout << "Kitchen " << kitchenIndex + 1 << " encountered an error: " << errormsg->getError() << std::endl;
+            }
+            break;
+        case Plazza::Order:
+            {
+                std::unique_ptr<Plazza::OrderMessage> order = Plazza::Message::unpack<Plazza::OrderMessage>(msg);
+                const std::unique_ptr<Plazza::IPizza> &pizza = order->getPizza();
+                std::cout << "Kitchen " << kitchenIndex + 1 << " cooked a " << sizeToString.at(pizza->getSize()) << " "
+                << pizzaTypeToString.at(pizza->getType()) << " pizza" << std::endl;
+            }
             break;
         default:
             break;
@@ -78,13 +128,19 @@ void Plazza::Reception::run()
 
     while (_getLine.isRunning()) {
         std::string incoming;
+        std::vector<std::size_t> toDelete;
         for (std::size_t i = 0; i < _kitchens.size(); i++) {
             auto &kitchen = _kitchens[i];
             Plazza::NamedPipes &pipes = *std::get<1>(kitchen);
             pipes >> incoming;
             if (!incoming.empty()) {
-                processKitchenMessage(i, incoming);
+                processKitchenMessage(i, incoming, toDelete);
             }
+        }
+        for (auto &index : toDelete) {
+            std::get<0>(_kitchens[index])->kill();
+            std::get<1>(_kitchens[index]).reset();
+            _kitchens.erase(_kitchens.begin() + index);
         }
         try {
             Parser parser;

@@ -30,6 +30,7 @@ void Plazza::Kitchen::run()
     double newTime;
 
     while (_isClosing.load() == false) {
+        _sendPizzaOrders();
         newTime = _clock.getElapsedTime();
         _clock.restart();
         refillTime += newTime * 1000;
@@ -41,7 +42,7 @@ void Plazza::Kitchen::run()
             _storage.refill();
             refillTime -= static_cast<double>(_timeRestock);
         }
-        if (_toCook.size() > 0 || getCookOccupancy() > 0) {
+        if (_toCook.size() > 0 || _getCookOccupancy() > 0) {
             closeTime = 0;
         } else if (closeTime >= 5) {
             _isClosing.store(true);
@@ -54,6 +55,7 @@ void Plazza::Kitchen::run()
             continue;
         _processMessage(msg);
     }
+    _sendPizzaOrders();
     _sendQuitMessage();
 }
 
@@ -64,8 +66,8 @@ void Plazza::Kitchen::_processMessage(const std::string &msg)
     if (type == Plazza::MessageType::Status) {
         std::ostringstream oss;
         oss << "\t" << "Pizzas in queue: " << _toCook.size() << std::endl;
-        oss << "\t" << "Pizzas cooking: " << getCookOccupancy() << std::endl;
-        oss << "\t" << "Can cook " << getAvailability() << " pizzas" << std::endl;
+        oss << "\t" << "Pizzas cooking: " << _getCookOccupancy() << std::endl;
+        oss << "\t" << "Can cook " << _getAvailability() << " pizzas" << std::endl;
         oss << "\t" << "Ingredients: ";
         int ingredient = 1;
         while (ingredient <= 256) {
@@ -73,14 +75,19 @@ void Plazza::Kitchen::_processMessage(const std::string &msg)
             oss << " " << ingredientsMap.at(casted) << ": " << _storage.getIngredient(casted);
             ingredient *= 2;
         }
-        Plazza::StatusMessage status(oss.str(), Plazza::R_Reception);
+        Plazza::StatusMessage status(oss.str(), _getAvailability(), Plazza::R_Reception);
         status >> _pipes;
+    }
+    if (type == Plazza::MessageType::Order) {
+        std::unique_ptr<Plazza::OrderMessage> order = Plazza::Message::unpack<Plazza::OrderMessage>(msg);
+        std::unique_ptr<IPizza> pizza = std::move(order->getPizza());
+        _toCook.push(pizza);
     }
 }
 
 
 
-std::size_t Plazza::Kitchen::getCookOccupancy()
+std::size_t Plazza::Kitchen::_getCookOccupancy()
 {
     std::size_t nbCooks = 0;
 
@@ -91,10 +98,10 @@ std::size_t Plazza::Kitchen::getCookOccupancy()
     return nbCooks;
 }
 
-std::size_t Plazza::Kitchen::getAvailability()
+std::size_t Plazza::Kitchen::_getAvailability()
 {
     int pizzasInQueue = _toCook.size();
-    int pizzasCooking = getCookOccupancy();
+    int pizzasCooking = _getCookOccupancy();
     int totalAv = _getCookCount() * 2;
 
     int result = totalAv - pizzasInQueue - pizzasCooking;
@@ -110,4 +117,14 @@ void Plazza::Kitchen::_sendQuitMessage()
 {
     Plazza::QuitMessage quit(Plazza::R_Reception);
     quit >> _pipes;
+}
+
+void Plazza::Kitchen::_sendPizzaOrders()
+{
+    while (_cooked.size() > 0) {
+        std::unique_ptr<IPizza> pizza = _cooked.pop();
+        Plazza::OrderMessage msg = Plazza::OrderMessage(std::move(pizza), Plazza::R_Reception);
+        msg >> _pipes;
+        usleep(10000);
+    }
 }

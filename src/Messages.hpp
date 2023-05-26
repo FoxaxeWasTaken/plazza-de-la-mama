@@ -15,7 +15,7 @@ namespace Plazza {
             OrderMessage(std::unique_ptr<IPizza> pizza, Recipient recipient);
             ~OrderMessage() = default;
 
-            const std::unique_ptr<IPizza> &getPizza() const;
+            std::unique_ptr<IPizza> &getPizza();
             std::string pack() const;
             static std::unique_ptr<OrderMessage> unpack(const std::string &str);
         private:
@@ -25,14 +25,18 @@ namespace Plazza {
 
     class StatusMessage : public Message {
         public:
-            StatusMessage(std::string status, Recipient recipient);
+            StatusMessage(Recipient recipient);
+            StatusMessage(std::string status, std::size_t availability, Recipient recipient);
             ~StatusMessage() = default;
 
             std::string getStatus() const;
+            std::size_t getAvailability() const;
             std::string pack() const;
             static std::unique_ptr<StatusMessage> unpack(const std::string &str);
         private:
             std::string _status;
+            std::size_t _availability;
+            
     };
 
     class ErrorMessage : public Message {

@@ -37,7 +37,7 @@ namespace Plazza {
              * @brief Process messages from the kitchens
              * @param msg The message to process
             */
-            void processKitchenMessage(std::size_t kitchenIndex, const std::string &msg);
+            void processKitchenMessage(std::size_t kitchenIndex, const std::string &msg, std::vector<std::size_t> &toDelete);
 
         public:
             /**
