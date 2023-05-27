@@ -33,7 +33,11 @@ void Plazza::Cook::run()
 
     while (!_isClosing.load()) {
         if (_toCook.size() > 0) {
-            _pizza = _toCook.pop();
+            try {
+                _pizza = _toCook.pop();
+            } catch (Plazza::SafeQueueError &e) {
+                continue;
+            }
         } else {
             usleep(1000);
             continue;

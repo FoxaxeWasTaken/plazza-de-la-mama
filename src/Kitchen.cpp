@@ -19,10 +19,6 @@ Plazza::Kitchen::Kitchen(std::size_t nbCooks, std::size_t timeRestock, double ti
     run();
 }
 
-Plazza::Kitchen::~Kitchen()
-{
-}
-
 void Plazza::Kitchen::run()
 {
     double refillTime = 0;
@@ -122,9 +118,13 @@ void Plazza::Kitchen::_sendQuitMessage()
 void Plazza::Kitchen::_sendPizzaOrders()
 {
     while (_cooked.size() > 0) {
-        std::unique_ptr<IPizza> pizza = _cooked.pop();
-        Plazza::OrderMessage msg = Plazza::OrderMessage(std::move(pizza), Plazza::R_Reception);
-        msg >> _pipes;
-        usleep(10000);
+        try {
+            std::unique_ptr<IPizza> pizza = _cooked.pop();
+            Plazza::OrderMessage msg = Plazza::OrderMessage(std::move(pizza), Plazza::R_Reception);
+            msg >> _pipes;
+            usleep(10000);
+        } catch (Plazza::SafeQueueError &e) {
+            continue;
+        }
     }
 }

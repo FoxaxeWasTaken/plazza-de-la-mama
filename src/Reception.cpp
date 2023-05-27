@@ -72,7 +72,8 @@ void Plazza::Reception::cookPizzas(std::vector<std::unique_ptr<IPizza>> &pizzas)
     for (auto &pair : availability)
         availabilitySum += pair.second;
     while (availabilitySum < pizzas.size())  {
-        createKitchen();
+        if (createKitchen())
+            while (1);
         availabilitySum += _nbCooks * 2;
         availability.push_back(std::make_pair(_kitchens.size() - 1, _nbCooks * 2));
     }
@@ -137,10 +138,12 @@ void Plazza::Reception::run()
                 processKitchenMessage(i, incoming, toDelete);
             }
         }
-        for (auto &index : toDelete) {
-            std::get<0>(_kitchens[index])->kill();
-            std::get<1>(_kitchens[index]).reset();
-            _kitchens.erase(_kitchens.begin() + index);
+        for (size_t i = toDelete.size(); i > 0; i--) {
+            auto maxElement = std::max_element(toDelete.begin(), toDelete.end());
+            toDelete.erase(maxElement);
+            std::get<0>(_kitchens[*maxElement])->kill();
+            std::get<1>(_kitchens[*maxElement]).reset();
+            _kitchens.erase(_kitchens.begin() + *maxElement);
         }
         try {
             Parser parser;
@@ -162,7 +165,7 @@ void Plazza::Reception::run()
     }
 }
 
-void Plazza::Reception::createKitchen()
+bool Plazza::Reception::createKitchen()
 {
     std::unique_ptr<Fork> fork = std::make_unique<Fork>();
     std::string name = "/tmp/plazza_kitchen_" + std::to_string(_kitchens.size());
@@ -172,8 +175,10 @@ void Plazza::Reception::createKitchen()
     if (fork->isChild()) {
         NamedPipes pipes(name_in, name_out, false);
         std::unique_ptr<Kitchen> kitchen = std::make_unique<Kitchen>(_nbCooks, _timeRestock, _timeMultiplier, pipes);
+        return (true);
     } else {
         std::unique_ptr<NamedPipes> pipes = std::make_unique<NamedPipes>(name_in, name_out);
         _kitchens.push_back(std::make_tuple(std::move(fork), std::move(pipes)));
     }
+    return (false);
 }

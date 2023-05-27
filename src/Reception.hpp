@@ -61,6 +61,6 @@ namespace Plazza {
             /**
              * @brief Creates a new kitchen
              */
-            void createKitchen();
+            bool createKitchen();
     };
 }

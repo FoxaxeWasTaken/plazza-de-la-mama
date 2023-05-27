@@ -21,7 +21,7 @@ namespace Plazza {
     class Kitchen {
         public:
             Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier, NamedPipes &pipes);
-            ~Kitchen();
+            ~Kitchen() = default;
             
             void run();
         private:

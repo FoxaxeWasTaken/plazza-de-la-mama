@@ -77,7 +77,11 @@ void Plazza::NamedPipes::remove_existing_pipes()
 void Plazza::NamedPipes::operator>>(std::string &str)
 {
     if (_queue.size() > 0) {
-        str = _queue.pop();
+        try {
+            str = _queue.pop();
+        } catch (Plazza::SafeQueueError &e) {
+            return;
+        }
         return;
     }
 
@@ -109,7 +113,13 @@ void Plazza::NamedPipes::operator>>(std::string &str)
     if (tmp.size() > 0) {
         _queue.push(tmp);
     }
-    str = _queue.pop();
+    if (_queue.size() > 0) {
+        try {
+            str = _queue.pop();
+        } catch(Plazza::SafeQueueError &e) {
+            return;
+        }
+    }
 }
 
 void Plazza::NamedPipes::operator<<(const std::string &str)
