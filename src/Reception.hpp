@@ -10,6 +10,7 @@
 #include "Kitchen.hpp"
 #include "GetLine.hpp"
 #include "Parser.hpp"
+#include "Logger.hpp"
 
 #include <vector>
 
@@ -21,6 +22,7 @@ namespace Plazza {
             double _timeMultiplier;
             GetLine _getLine;
             std::vector<std::tuple<std::unique_ptr<Fork>, std::unique_ptr<NamedPipes>>> _kitchens;
+            Logger _logger;
 
             /**
              * @brief Prints all of the kitchen statuses
