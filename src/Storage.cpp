@@ -60,10 +60,6 @@ void Plazza::Storage::takeIngredients(std::vector<Ingredients> ingredients)
 void Plazza::Storage::refill(std::size_t nbIngredients)
 {
     for (auto &ingredient : _ingredients) {
-        if (ingredient.second.load() + nbIngredients > _maxIngredients) {
-            ingredient.second.store(_maxIngredients);
-        } else {
-            ingredient.second.fetch_add(nbIngredients);
-        }
+        ingredient.second.fetch_add(nbIngredients);
     }
 }
