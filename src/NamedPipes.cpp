@@ -15,8 +15,11 @@
 #include <cstring>
 
 Plazza::NamedPipes::NamedPipes(std::string inName, std::string outName, bool isParent)
-    : _inName(inName), _outName(outName), _inFd(-1), _outFd(-1), _isParent(isParent)
+    : _inName(inName), _outName(outName), _inFd(-1), _outFd(-1), _isParent(isParent), _mutex()
 {
+    if (_inName.find("/tmp/plazza") != 0 || _outName.find("/tmp/plazza") != 0) {
+        throw NamedPipesError("invalid pipe name");
+    }
     if (isParent)
         createPipes();
     openPipes();
@@ -49,6 +52,9 @@ void Plazza::NamedPipes::openPipes()
     if (_inFd == -1 || _outFd == -1) {
         throw NamedPipesError("open");
     }
+    if (fcntl(_inFd, F_SETFL, O_NONBLOCK) == -1 || fcntl(_outFd, F_SETFL, O_NONBLOCK) == -1) {
+        throw NamedPipesError("fcntl");
+    }
 }
 
 void Plazza::NamedPipes::closePipes()
@@ -63,25 +69,68 @@ void Plazza::NamedPipes::closePipes()
     }
 }
 
+void Plazza::NamedPipes::remove_existing_pipes()
+{
+    system("rm -f /tmp/plazza*");
+}
+
 void Plazza::NamedPipes::operator>>(std::string &str)
 {
+    if (_queue.size() > 0) {
+        try {
+            str = _queue.pop();
+        } catch (Plazza::SafeQueueError &e) {
+            return;
+        }
+        return;
+    }
+
     char buffer[4096];
     int ret = 0;
 
     memset(buffer, 0, 4096);
-    ret = read(_isParent ? _outFd : _inFd , buffer, 4096);
+    ret = read(_isParent ? _outFd : _inFd, buffer, 4096);
     if (ret == -1) {
-        throw NamedPipesError("read");
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            str = "";
+            return;
+        } else {
+            throw NamedPipesError("read");
+        }
     }
     if (ret == 0) {
-        throw NamedPipesError("pipe closed unexpectedly");
+        str = "";
+        return;
     }
-    str = buffer;
+    std::string tmp = buffer;
+    std::string line;
+    size_t pos = 0;
+    while ((pos = tmp.find('\n')) != std::string::npos) {
+        line = tmp.substr(0, pos);
+        tmp.erase(0, pos + 1);
+        _queue.push(line);
+    }
+    if (tmp.size() > 0) {
+        _queue.push(tmp);
+    }
+    if (_queue.size() > 0) {
+        try {
+            str = _queue.pop();
+        } catch(Plazza::SafeQueueError &e) {
+            return;
+        }
+    }
 }
 
 void Plazza::NamedPipes::operator<<(const std::string &str)
 {
-    if (write(_isParent ? _inFd : _outFd, str.c_str(), str.size()) == -1) {
+    std::string sstr = str;
+    if (sstr[sstr.length() - 1] != '\n')
+        sstr += '\n';
+    _mutex.lock();
+    if (write(_isParent ? _inFd : _outFd, sstr.c_str(), sstr.size()) == -1) {
+        _mutex.unlock();
         throw NamedPipesError("write");
     }
+    _mutex.unlock();
 }

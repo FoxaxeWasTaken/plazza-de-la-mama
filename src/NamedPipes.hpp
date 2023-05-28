@@ -10,6 +10,8 @@
 #include <string>
 
 #include "Errors.hpp"
+#include "Mutex.hpp"
+#include "SafeQueue.hpp"
 
 namespace Plazza {
     class NamedPipes {
@@ -19,6 +21,8 @@ namespace Plazza {
             int _inFd;
             int _outFd;
             bool _isParent;
+            Mutex _mutex;
+            SafeQueue<std::string> _queue;
 
             /**
              * @brief Create the pipes
@@ -38,6 +42,11 @@ namespace Plazza {
         public:
             NamedPipes(std::string inName, std::string outName, bool isParent = true);
             ~NamedPipes();
+
+            /**
+             * @brief Remove pipes that already exist
+            */
+            static void remove_existing_pipes();
 
             void operator>>(std::string &str);
             void operator<<(const std::string &str);

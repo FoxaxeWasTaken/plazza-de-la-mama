@@ -14,6 +14,7 @@ MAIN		=	src/Main.cpp
 
 SRC			=	src/Messages.cpp			\
 				src/NamedPipes.cpp			\
+				src/Reception.cpp			\
 				src/Pizzas.cpp				\
 				src/Storage.cpp				\
 				src/Thread.cpp				\

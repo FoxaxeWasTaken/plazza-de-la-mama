@@ -14,15 +14,16 @@
 #include "SafeQueue.hpp"
 #include "Fork.hpp"
 #include "Cook.hpp"
+#include "NamedPipes.hpp"
+#include "Messages.hpp"
 
 namespace Plazza {
     class Kitchen {
         public:
-            Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier);
-            ~Kitchen();
-
+            Kitchen(std::size_t nbCooks, std::size_t timeRestock, double timeMultiplier, NamedPipes &pipes);
+            ~Kitchen() = default;
+            
             void run();
-            std::size_t getCookOccupancy();
         private:
             Clock _clock;
             Storage _storage;
@@ -31,5 +32,13 @@ namespace Plazza {
             std::vector<std::unique_ptr<Cook>> _cooks;
             std::size_t _timeRestock;
             std::atomic<bool> _isClosing;
+            NamedPipes &_pipes;
+
+            std::size_t _getCookCount() const;
+            std::size_t _getCookOccupancy();
+            std::size_t _getAvailability();
+            void _processMessage(const std::string &msg);
+            void _sendQuitMessage();
+            void _sendPizzaOrders();
     };
 }

@@ -24,7 +24,7 @@ namespace Plazza {
             int getIngredient(Ingredients ingredient) const;
             void setIngredient(Ingredients ingredient, int quantity);
             bool hasIngredients(std::vector<Ingredients> ingredients) const;
-            void takeIngredients(std::vector<Ingredients> ingredients);
+            bool takeIngredients(std::vector<Ingredients> ingredients);
             void refill(std::size_t nbIngredients = 1);
         private:
             std::map<Ingredients, std::atomic<int>> _ingredients;

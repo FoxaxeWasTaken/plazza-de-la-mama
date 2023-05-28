@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <atomic>
+#include <unistd.h>
 #include "SafeQueue.hpp"
 #include "Mutex.hpp"
 #include "Thread.hpp"

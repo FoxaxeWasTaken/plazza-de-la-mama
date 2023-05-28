@@ -24,6 +24,13 @@ namespace Plazza {
         Fantasia = 8
     };
 
+    const std::map<PizzaType, std::string> pizzaTypeToString = {
+        {Plazza::Regina, "Regina"},
+        {Plazza::Margarita, "Margarita"},
+        {Plazza::Americana, "Americana"},
+        {Plazza::Fantasia, "Fantasia"}
+    };
+
     const std::map<Plazza::PizzaType, std::size_t> cookingTime = {
         {Plazza::Regina, 2},
         {Plazza::Margarita, 1},
@@ -45,6 +52,14 @@ namespace Plazza {
         {"L", PizzaSize::L},
         {"XL", PizzaSize::XL},
         {"XXL", PizzaSize::XXL}
+    };
+
+    const std::map<PizzaSize, std::string> sizeToString = {
+        {PizzaSize::S, "S"},
+        {PizzaSize::M, "M"},
+        {PizzaSize::L, "L"},
+        {PizzaSize::XL, "XL"},
+        {PizzaSize::XXL, "XXL"}
     };
 
     class IPizza {

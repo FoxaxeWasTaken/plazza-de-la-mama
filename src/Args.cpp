@@ -28,8 +28,8 @@ void Plazza::Args::setNbCooks(std::string arg)
     }
     if (arg.length() != pos)
         throw (Plazza::ArgsError("argument (NbCooks) is not a number"));
-    if (_nbCooks < 0)
-        throw (Plazza::ArgsError("number (NbCooks) is negativ"));
+    if (_nbCooks <= 0)
+        throw (Plazza::ArgsError("number (NbCooks) is negativ or null"));
 }
 
 size_t Plazza::Args::getNbCooks() const
@@ -48,8 +48,8 @@ void Plazza::Args::setTimeRefill(std::string arg)
     }
     if (arg.length() != pos)
         throw (Plazza::ArgsError("argument (TimeRefill) is not a number"));
-    if (_timeRefill < 0)
-        throw (Plazza::ArgsError("number (TimeRefill) is negativ"));
+    if (_timeRefill <= 0)
+        throw (Plazza::ArgsError("number (TimeRefill) is negativ or null"));
 }
 
 size_t Plazza::Args::getTimeRefill() const
@@ -68,8 +68,8 @@ void Plazza::Args::setMultiplier(std::string arg)
     }
     if (arg.length() != pos)
         throw (Plazza::ArgsError("argument (multiplier) is not a number"));
-    if (_multiplier < 0)
-        throw (Plazza::ArgsError("number (multiplier) is negativ"));
+    if (_multiplier <= 0)
+        throw (Plazza::ArgsError("number (multiplier) is negativ or null"));
 }
 
 double Plazza::Args::getMultiplier() const
