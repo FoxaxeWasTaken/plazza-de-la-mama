@@ -23,7 +23,7 @@ namespace Plazza {
         None = -1,
         Order,
         Status,
-        Error,
+        T_Error,
         Quit
     };
 

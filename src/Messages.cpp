@@ -123,7 +123,7 @@ std::unique_ptr<Plazza::StatusMessage> Plazza::StatusMessage::unpack(const std::
 }
 
 Plazza::ErrorMessage::ErrorMessage(std::string error, const std::vector<std::shared_ptr<IPizza>> &pizzas, Plazza::Recipient recipient)
-    : Message(Plazza::MessageType::Error, recipient), _error(error), _pizzas(pizzas)
+    : Message(Plazza::MessageType::T_Error, recipient), _error(error), _pizzas(pizzas)
 {
 }
 

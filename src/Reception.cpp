@@ -117,7 +117,7 @@ void Plazza::Reception::processKitchenMessage(std::size_t kitchenIndex, const st
             _logger.log("Kitchen " + std::to_string(kitchenIndex + 1) + " quitted gracefully", "reception.log");
             toDelete.push_back(kitchenIndex);
             break;
-        case Plazza::Error:
+        case Plazza::T_Error:
             {
                 std::unique_ptr<Plazza::ErrorMessage> errormsg = Plazza::Message::unpack<Plazza::ErrorMessage>(msg);
                 std::cout << "Kitchen " << kitchenIndex + 1 << " encountered an error: " << errormsg->getError() << std::endl;

@@ -20,6 +20,9 @@ int main(int ac, char **av)
     } catch (Plazza::ArgsError &e) {
         std::cout << e.what() << std::endl;
         return (84);
+    } catch (Plazza::Error &e) {
+        std::cout << "Unknown error " << e.what() << std::endl;
+        return (84);
     }
     return 0;
 }
