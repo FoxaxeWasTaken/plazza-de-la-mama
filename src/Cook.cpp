@@ -43,11 +43,9 @@ void Plazza::Cook::run()
             continue;
         }
         _isCooking = true;
-        while (!_storage.hasIngredients(_pizza->getIngredients())) {
+        while (_storage.takeIngredients(_pizza->getIngredients()) == false) {
             usleep(1000);
         }
-        if (_storage.takeIngredients(_pizza->getIngredients()) == false)
-            continue;
         timeNeeded = _pizza.get()->getCookingTime() * _timeMultiplier;
         startTime = _time.load();
         while (_time.load() - startTime < timeNeeded) {
